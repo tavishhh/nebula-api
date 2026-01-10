@@ -134,7 +134,7 @@
                     <th>Status</th>
                 </tr>
             </thead>
-            <tbody id="tableBody"></tbody>
+            <tbody id="rosterTableBody"></tbody>
         </table>
     </div>
 </div>
@@ -168,23 +168,32 @@
 
     // 2. RENDER THE TABLE (The missing function)
     function renderTable(data) {
-        const tableBody = document.getElementById('rosterTableBody');
-        if (!tableBody) return;
-
-        tableBody.innerHTML = ''; // Clear existing rows
-
-        data.forEach(entry => {
-            const row = `
-                <tr>
-                    <td>${entry.name}</td>
-                    <td>${entry.email}</td>
-                    <td>${entry.message}</td>
-                    <td>${new Date(entry.timestamp).toLocaleDateString()}</td>
-                </tr>
-            `;
-            tableBody.innerHTML += row;
-        });
+    const tableBody = document.getElementById('rosterTableBody');
+    
+    if (!tableBody) {
+        console.error("CRITICAL: Could not find 'rosterTableBody' in your HTML!");
+        return;
     }
+
+    tableBody.innerHTML = ''; // Clear the "Loading..." text
+
+    if (data.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="4">No stars have joined the orbit yet.</td></tr>';
+        return;
+    }
+
+    data.forEach(entry => {
+        const row = `
+            <tr>
+                <td style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);">${entry.name}</td>
+                <td style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);">${entry.email}</td>
+                <td style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);">${entry.message}</td>
+                <td style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);">${new Date(entry.timestamp).toLocaleDateString()}</td>
+            </tr>
+        `;
+        tableBody.innerHTML += row;
+    });
+}
 
     // 3. UPDATE THE AGENT COUNTER
     function updateCounter(count) {
