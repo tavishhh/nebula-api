@@ -141,30 +141,44 @@
 
 <script>
     // 1. INITIALIZE DATA LOAD
-    async function loadData() {
-        try {
-            const response = await fetch('/api/roster');
+   async function loadData() {
+    const loader = document.getElementById('loader');
+    const statusBox = document.getElementById('responseMsg');
 
-            // Check if security gate is active
-            if (response.status === 401) {
-                console.warn("NEBULA_AUTH: Credentials required.");
-                return;
-            }
+    try {
+        const response = await fetch('/api/roster');
 
-            if (!response.ok) throw new Error('System error');
-
-            const data = await response.json();
-            
-            // Call the helper functions below
-            renderTable(data);
-            updateCounter(data.length);
-
-        } catch (error) {
-            console.error('Transmission Interrupted:', error);
-            const statusBox = document.getElementById('responseMsg');
+        // 1. Security Check
+        if (response.status === 401) {
+            console.warn("NEBULA_AUTH: Credentials required.");
             if (statusBox) statusBox.innerText = "SYSTEM_LOCK: Access Denied.";
+            return;
         }
+
+        if (!response.ok) throw new Error('System error');
+
+        // 2. Process Data
+        const data = await response.json();
+        
+        // 3. Update UI
+        renderTable(data);
+        updateCounter(data.length);
+
+        // 4. THE FIX: Hide the loader smoothly
+        if (loader) {
+            loader.style.opacity = '0';
+            setTimeout(() => { 
+                loader.style.display = 'none'; 
+            }, 500); 
+        }
+
+    } catch (error) {
+        console.error('Transmission Interrupted:', error);
+        if (statusBox) statusBox.innerText = "SYSTEM_LOCK: Connection Failed.";
+        // Ensure loader disappears even if there is an error
+        if (loader) loader.style.display = 'none';
     }
+}
 
     // 2. RENDER THE TABLE (The missing function)
 function renderTable(data) {
