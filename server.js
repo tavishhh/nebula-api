@@ -46,7 +46,16 @@ app.post('/api/roster', async (req, res) => {
     res.status(500).json({ message: 'Internal server error.' });
   }
 });
-
+ // GET route to fetch all entries for the Admin Panel
+app.get('/api/roster', async (req, res) => {
+    try {
+        const entries = await Roster.find().sort({ timestamp: -1 }); // Newest first
+        res.status(200).json(entries);
+    } catch (error) {
+        console.error('Fetch error:', error);
+        res.status(500).json({ message: 'Failed to fetch data' });
+    }
+});
 
 // Add this right before app.listen
 app.get('/', (req, res) => {

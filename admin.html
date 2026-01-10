@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NEBULA Admin Panel</title>
+    <style>
+        body { font-family: sans-serif; background: #0f0f1b; color: white; padding: 40px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border: 1px solid #444; text-align: left; }
+        th { background: #1a1a2e; }
+        tr:nth-child(even) { background: #161625; }
+    </style>
+</head>
+<body>
+    <h1>Nebula System Roster</h1>
+    <table id="rosterTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Message</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            </tbody>
+    </table>
+
+    <script>
+        async function loadData() {
+            const response = await fetch('https://nebula-system-3f8e.onrender.com/api/roster');
+            const data = await response.json();
+            const tableBody = document.getElementById('tableBody');
+            
+            tableBody.innerHTML = data.map(entry => `
+                <tr>
+                    <td>${entry.name}</td>
+                    <td>${entry.email}</td>
+                    <td>${entry.message}</td>
+                    <td>${new Date(entry.timestamp).toLocaleString()}</td>
+                </tr>
+            `).join('');
+        }
+        loadData();
+    </script>
+</body>
+</html>
