@@ -125,7 +125,7 @@
 
     <div class="glass-card">
         <div id="loader" class="loader"></div>
-        <table id="rosterTable" style="display:none;">
+        <table id="rosterTable" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
             <thead>
                 <tr>
                     <th>Agent Name</th>
@@ -167,20 +167,16 @@
     }
 
     // 2. RENDER THE TABLE (The missing function)
-    function renderTable(data) {
+function renderTable(data) {
+    const tableContainer = document.getElementById('rosterTable');
     const tableBody = document.getElementById('rosterTableBody');
     
-    if (!tableBody) {
-        console.error("CRITICAL: Could not find 'rosterTableBody' in your HTML!");
-        return;
-    }
+    if (!tableBody || !tableContainer) return;
 
-    tableBody.innerHTML = ''; // Clear the "Loading..." text
+    // Ensure the table is visible now that we have data
+    tableContainer.style.display = 'table'; 
 
-    if (data.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="4">No stars have joined the orbit yet.</td></tr>';
-        return;
-    }
+    tableBody.innerHTML = ''; 
 
     data.forEach(entry => {
         const row = `
@@ -194,6 +190,7 @@
         tableBody.innerHTML += row;
     });
 }
+
 
     // 3. UPDATE THE AGENT COUNTER
     function updateCounter(count) {
