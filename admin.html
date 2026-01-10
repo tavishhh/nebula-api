@@ -111,50 +111,63 @@
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Command Center</h1>
-            <p style="color: rgba(255,255,255,0.5)">System Core: Roster Logs</p>
-        </header>
+    <header>
+        <h1>Command Center</h1>
+        <p style="color: rgba(255,255,255,0.5)">System Core: Roster Logs</p>
+    </header>
 
-        <div class="glass-card">
-            <div id="loader" class="loader"></div>
-            <table id="rosterTable" style="display:none;">
-                <thead>
-                    <tr>
-                        <th>Agent Name</th>
-                        <th>Identifier (Email)</th>
-                        <th>Transmission</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
+    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+        <div class="glass-card" style="text-align: center; padding: 30px;">
+            <div style="font-size: 0.8rem; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 2px;">Total Agents</div>
+            <div id="agentCount" style="font-size: 3.5rem; font-weight: 700; margin-top: 10px; text-shadow: 0 0 20px var(--accent-blue);">0</div>
         </div>
     </div>
 
-    <script>
-        async function loadData() {
-            try {
-                const response = await fetch('https://nebula-system-3f8e.onrender.com/api/roster');
-                const data = await response.json();
-                
-                const tableBody = document.getElementById('tableBody');
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('rosterTable').style.display = 'table';
+    <div class="glass-card">
+        <div id="loader" class="loader"></div>
+        <table id="rosterTable" style="display:none;">
+            <thead>
+                <tr>
+                    <th>Agent Name</th>
+                    <th>Identifier (Email)</th>
+                    <th>Transmission</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
 
-                tableBody.innerHTML = data.map(entry => `
-                    <tr>
-                        <td style="font-weight:600; color:#fff;">${entry.name}</td>
-                        <td>${entry.email}</td>
-                        <td style="font-style:italic;">"${entry.message}"</td>
-                        <td><span class="status-pill">Active</span></td>
-                    </tr>
-                `).join('');
-            } catch (err) {
-                console.error("Transmission Interrupted:", err);
-            }
+<script>
+    async function loadData() {
+        try {
+            const response = await fetch('https://nebula-system-3f8e.onrender.com/api/roster');
+            const data = await response.json();
+            
+            const tableBody = document.getElementById('tableBody');
+            const agentCountDisplay = document.getElementById('agentCount');
+            
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('rosterTable').style.display = 'table';
+
+            // Update the Counter
+            agentCountDisplay.innerText = data.length;
+
+            // Inject the Table Data
+            tableBody.innerHTML = data.map(entry => `
+                <tr>
+                    <td style="font-weight:600; color:#fff;">${entry.name}</td>
+                    <td>${entry.email}</td>
+                    <td style="font-style:italic;">"${entry.message}"</td>
+                    <td><span class="status-pill">Active</span></td>
+                </tr>
+            `).join('');
+        } catch (err) {
+            console.error("Transmission Interrupted:", err);
         }
-        loadData();
-    </script>
+    }
+    loadData();
+</script>
 </body>
 </html>
