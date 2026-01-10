@@ -2,44 +2,157 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>NEBULA Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEBULA | Admin Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; background: #0f0f1b; color: white; padding: 40px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; border: 1px solid #444; text-align: left; }
-        th { background: #1a1a2e; }
-        tr:nth-child(even) { background: #161625; }
+        :root {
+            --bg-color: #05050a;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent-purple: #9d50bb;
+            --accent-blue: #6e7ff3;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(157, 80, 187, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(110, 127, 243, 0.15) 0%, transparent 40%);
+            color: white;
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(to right, #fff, var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            text-align: left;
+            padding: 16px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-blue);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        td {
+            padding: 16px;
+            font-size: 0.95rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            transition: 0.3s;
+        }
+
+        .status-pill {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            background: rgba(110, 127, 243, 0.1);
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        /* Loading Animation */
+        .loader {
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid var(--accent-blue);
+            border-radius: 50%;
+            width: 30px; height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <h1>Nebula System Roster</h1>
-    <table id="rosterTable">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Message</th>
-                <th>Date</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            </tbody>
-    </table>
+    <div class="container">
+        <header>
+            <h1>Command Center</h1>
+            <p style="color: rgba(255,255,255,0.5)">System Core: Roster Logs</p>
+        </header>
+
+        <div class="glass-card">
+            <div id="loader" class="loader"></div>
+            <table id="rosterTable" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>Agent Name</th>
+                        <th>Identifier (Email)</th>
+                        <th>Transmission</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
 
     <script>
         async function loadData() {
-            const response = await fetch('https://nebula-system-3f8e.onrender.com/api/roster');
-            const data = await response.json();
-            const tableBody = document.getElementById('tableBody');
-            
-            tableBody.innerHTML = data.map(entry => `
-                <tr>
-                    <td>${entry.name}</td>
-                    <td>${entry.email}</td>
-                    <td>${entry.message}</td>
-                    <td>${new Date(entry.timestamp).toLocaleString()}</td>
-                </tr>
-            `).join('');
+            try {
+                const response = await fetch('https://nebula-system-3f8e.onrender.com/api/roster');
+                const data = await response.json();
+                
+                const tableBody = document.getElementById('tableBody');
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('rosterTable').style.display = 'table';
+
+                tableBody.innerHTML = data.map(entry => `
+                    <tr>
+                        <td style="font-weight:600; color:#fff;">${entry.name}</td>
+                        <td>${entry.email}</td>
+                        <td style="font-style:italic;">"${entry.message}"</td>
+                        <td><span class="status-pill">Active</span></td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error("Transmission Interrupted:", err);
+            }
         }
         loadData();
     </script>
