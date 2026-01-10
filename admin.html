@@ -140,37 +140,62 @@
 </div>
 
 <script>
+    // 1. INITIALIZE DATA LOAD
     async function loadData() {
-    const resMsg = document.getElementById('responseMsg'); // Make sure this ID exists in your HTML
-    
-    try {
-        const response = await fetch('/api/roster');
+        try {
+            const response = await fetch('/api/roster');
 
-        // 1. Check for Security Challenge
-        if (response.status === 401) {
-            console.warn("NEBULA_AUTH: Access Denied. Credentials Required.");
-            return; 
+            // Check if security gate is active
+            if (response.status === 401) {
+                console.warn("NEBULA_AUTH: Credentials required.");
+                return;
+            }
+
+            if (!response.ok) throw new Error('System error');
+
+            const data = await response.json();
+            
+            // Call the helper functions below
+            renderTable(data);
+            updateCounter(data.length);
+
+        } catch (error) {
+            console.error('Transmission Interrupted:', error);
+            const statusBox = document.getElementById('responseMsg');
+            if (statusBox) statusBox.innerText = "SYSTEM_LOCK: Access Denied.";
         }
-
-        if (!response.ok) throw new Error('System error or invalid response');
-
-        // 2. Parse the JSON Data
-        const data = await response.json();
-        
-        // 3. Update the UI
-        renderTable(data);
-        updateCounter(data.length);
-        
-        if (resMsg) resMsg.innerText = "Connection Stable: Data Synchronized.";
-
-    } catch (error) {
-        console.error('Transmission Interrupted:', error);
-        if (resMsg) resMsg.innerText = "SYSTEM_LOCK: Transmission Failed.";
     }
-}
 
-// Ensure loadData runs when the page opens
-window.onload = loadData;
+    // 2. RENDER THE TABLE (The missing function)
+    function renderTable(data) {
+        const tableBody = document.getElementById('rosterTableBody');
+        if (!tableBody) return;
+
+        tableBody.innerHTML = ''; // Clear existing rows
+
+        data.forEach(entry => {
+            const row = `
+                <tr>
+                    <td>${entry.name}</td>
+                    <td>${entry.email}</td>
+                    <td>${entry.message}</td>
+                    <td>${new Date(entry.timestamp).toLocaleDateString()}</td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+    }
+
+    // 3. UPDATE THE AGENT COUNTER
+    function updateCounter(count) {
+        const counterElement = document.getElementById('agentCount');
+        if (counterElement) {
+            counterElement.innerText = count;
+        }
+    }
+
+    // Run the system on page load
+    window.onload = loadData;
 </script>
 </body>
 </html>
