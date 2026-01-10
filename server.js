@@ -47,6 +47,12 @@ app.post('/api/roster', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+
+// Add this right before app.listen
+app.get('/', (req, res) => {
+  res.status(200).send('NEBULA System Online');
+});
+
+app.listen(PORT, '0.0.0.0', () => { // Added '0.0.0.0' for better binding
   console.log(`Server running on port ${PORT}`);
 });
