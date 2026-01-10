@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEBULA - Your Digital Universe Unified</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom Glassmorphism Styles */
+    .glass {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(128, 128, 128, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr); /* Mobile: 2 columns */
+      gap: 1rem;
+      padding: 1rem;
+    }
+    @media (min-width: 768px) {
+      .bento-grid {
+        grid-template-columns: repeat(4, 1fr); /* Desktop: 4 columns */
+        gap: 1.5rem;
+        padding: 2rem;
+      }
+    }
+    .card-large { grid-column: span 2; grid-row: span 2; }
+    .card-medium { grid-column: span 2; grid-row: span 1; }
+    .card-small { grid-column: span 1; grid-row: span 1; }
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .fab { position: fixed; bottom: 2rem; right: 2rem; background: linear-gradient(45deg, #00FFFF, #6A0DAD); box-shadow: 0 4px 20px rgba(0, 255, 255, 0.5); }
+    .fab:hover { box-shadow: 0 6px 30px rgba(0, 255, 255, 0.7); }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center; }
+    .modal.show { display: flex; }
+    .modal-content { background: white; padding: 2rem; border-radius: 1rem; max-width: 400px; width: 90%; }
+  </style>
+</head>
+<body class="bg-white text-gray-900 font-sans">
+  <!-- Hero Section -->
+  <section class="flex flex-col items-center justify-center min-h-screen px-4 py-16 text-center">
+    <h1 class="text-4xl md:text-6xl font-bold mb-8 tracking-tight">
+      YOUR DIGITAL UNIVERSE. UNIFIED.
+    </h1>
+    <button id="fab-btn" class="fab text-white px-6 py-3 rounded-full font-semibold text-lg">
+      Join the Roster
+    </button>
+  </section>
+
+  <!-- Bento Grid Services -->
+  <section class="bento-grid">
+    <div class="card-large glass p-6 rounded-lg reveal">
+      <h3 class="text-xl font-bold mb-4 text-[#00FFFF]">Social Media Management & Page Handling</h3>
+      <p>Streamline your online presence with expert handling of platforms, content scheduling, and engagement strategies.</p>
+    </div>
+    <div class="card-medium glass p-6 rounded-lg reveal">
+      <h3 class="text-xl font-bold mb-4 text-[#6A0DAD]">Talent Management (Influencer Branding)</h3>
+      <p>Build and elevate influencer brands through personalized strategies, partnerships, and growth optimization.</p>
+    </div>
+    <div class="card-small glass p-6 rounded-lg reveal">
+      <h3 class="text-xl font-bold mb-4 text-[#00FFFF]">Video Editing & Graphic Design</h3>
+      <p>Create stunning visuals and videos that captivate audiences and drive results.</p>
+    </div>
+    <div class="card-small glass p-6 rounded-lg reveal">
+      <h3 class="text-xl font-bold mb-4 text-[#6A0DAD]">Ads Services & Digital Marketing</h3>
+      <p>Targeted campaigns and marketing solutions to boost visibility and conversions.</p>
+    </div>
+  </section>
+
+  <!-- Modal -->
+  <div id="roster-modal" class="modal">
+    <div class="modal-content">
+      <h2 class="text-2xl font-bold mb-4">Join the Roster</h2>
+      <form id="roster-form">
+        <input type="text" id="name" placeholder="Name" class="w-full p-3 mb-4 border rounded" required>
+        <input type="email" id="email" placeholder="Email" class="w-full p-3 mb-4 border rounded" required>
+        <textarea id="message" placeholder="Tell us about your needs" class="w-full p-3 mb-4 border rounded h-24" required></textarea>
+        <button type="submit" class="w-full bg-gradient-to-r from-[#00FFFF] to-[#6A0DAD] text-white py-3 rounded font-semibold">Submit</button>
+      </form>
+      <button id="close-modal" class="mt-4 text-gray-500">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // Scroll-reveal animations
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }); 
+    reveals.forEach(reveal => observer.observe(reveal));
+
+    // Modal functionality
+    const modal = document.getElementById('roster-modal');
+    const fabBtn = document.getElementById('fab-btn');
+    const closeBtn = document.getElementById('close-modal');
+    const form = document.getElementById('roster-form');
+
+    fabBtn.addEventListener('click', () => modal.classList.add('show'));
+    closeBtn.addEventListener('click', () => modal.classList.remove('show'));
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('show'); });
+
+    // Form submission
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        message: document.getElementById('message').value
+      };
+      try {
+       // Add the full localhost address
+       const response = await fetch('http://localhost:3000/api/roster', { 
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify(data)
+       });
+        const result = await response.json();
+        alert(result.message);
+        if (response.ok) {
+          form.reset();
+          modal.classList.remove('show');
+        }
+      } catch (error) {
+        alert('Submission failed. Please try again.');
+      }
+    });
+  </script>
+</body>
+</html>

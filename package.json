@@ -1,0 +1,22 @@
+{
+  "name": "nebula-orbit-backend",
+  "version": "1.0.0",
+  "description": "NEBULA System Backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "body-parser": "^2.2.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "mongodb": "^6.0.0",
+    "mongoose": "^9.1.2"
+  }
+}
