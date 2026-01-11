@@ -2,8 +2,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path'); // ADD THIS line at the top
 require('dotenv').config();
-const { google } = require('googleapis'); // Replaced nodemailer with googleapis
+const { google } = require('googleapis');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -62,6 +63,7 @@ async function sendMailViaAPI(toEmail, name) {
     }
 }
 
+
 // --- 2. SECURITY MIDDLEWARE ---
 const adminAuth = (req, res, next) => {
     const auth = { 
@@ -73,24 +75,33 @@ const adminAuth = (req, res, next) => {
     if (login && password && login === auth.login && password === auth.password) {
         return next();
     }
-    res.set('WWW-Authenticate', 'Basic realm="401"');
+    res.set('WWW-Authenticate', 'Basic realm="Nebula Core Control"'); // Updated realm name
     res.status(401).send('NEBULA_AUTH: Authentication required.');
 };
 
 // --- 3. MIDDLEWARE ---
-// --- UPDATED MIDDLEWARE ---
 const corsOptions = {
-    origin: true, // Allows your Render URL to access the API
-    credentials: true, // Critical for passing Basic Auth headers
+    origin: true,
+    credentials: true,
     methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
+
+// --- 4. PROTECTED ROUTES (GATEKEEPER SECTION) ---
+
+// 4.1 THE GATEKEEPER: Pointing to the new /private/ folder
+app.get('/admin.html', adminAuth, (req, res) => {
+    // We added 'private' to the path here
+    res.sendFile(path.join(__dirname, 'private', 'admin.html'));
+});
+
+// Now serve the rest of the static files (index, css, etc.)
 app.use(express.static('.'));
 
-// --- 4. MONGODB CONNECTION ---
+// --- 5. MONGODB CONNECTION ---
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('>>> NEBULA_SYSTEM: Connected to MongoDB'))
   .catch(err => console.error('!!! NEBULA_ERROR:', err));
@@ -103,7 +114,7 @@ const rosterSchema = new mongoose.Schema({
 });
 const Roster = mongoose.model('Roster', rosterSchema, 'roster');
 
-// --- 5. PUBLIC ROUTES ---
+// --- 6. PUBLIC ROUTES ---
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
@@ -129,14 +140,9 @@ app.post('/api/roster', async (req, res) => {
   }
 });
 
-// --- 6. PROTECTED ADMIN ROUTES ---
+// --- 7. PROTECTED API ROUTES ---
 
-// 6.1 Serve the Admin Panel
-app.get('/admin.html', adminAuth, (req, res) => {
-    res.sendFile(__dirname + '/admin.html');
-});
-
-// 6.2 Fetch All Roster Entries
+// 7.1 Fetch All Roster Entries
 app.get('/api/roster', adminAuth, async (req, res) => {
     try {
         const entries = await Roster.find().sort({ timestamp: -1 });
@@ -147,20 +153,14 @@ app.get('/api/roster', adminAuth, async (req, res) => {
     }
 });
 
-// 6.3 NEW: Delete Specific Entry
+// 7.2 Delete Specific Entry
 app.delete('/api/roster/:id', adminAuth, async (req, res) => {
     try {
         const { id } = req.params;
         const deletedEntry = await Roster.findByIdAndDelete(id);
-        
-        if (!deletedEntry) {
-            return res.status(404).json({ message: 'Entry not found' });
-        }
-
-        console.log(`>>> DATA_PURGED: ${deletedEntry.name}`);
-        res.status(200).json({ message: 'Target neutralized from roster.' });
+        if (!deletedEntry) return res.status(404).json({ message: 'Entry not found' });
+        res.status(200).json({ message: 'Target neutralized.' });
     } catch (error) {
-        console.error('Delete error:', error);
         res.status(500).json({ message: 'Failed to delete data' });
     }
 });
