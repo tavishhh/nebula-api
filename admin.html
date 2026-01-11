@@ -183,7 +183,7 @@
     </style>
 </head>
 <body>
-    <div class="container">
+<div class="container">
     <header>
         <h1>Command Center</h1>
         <p style="color: rgba(255,255,255,0.5)">System Core: Roster Logs</p>
@@ -198,21 +198,23 @@
 
     <div class="glass-card">
         <div id="loader" class="loader"></div>
+
+        <div id="responseMsg" style="text-align: center; margin-bottom: 15px; font-family: monospace; color: var(--accent-blue);"></div>
+
         <table id="rosterTable" style="display: none; width: 100%; border-collapse: collapse; margin-top: 20px;">
-    <thead>
-        <tr style="text-align: left; border-bottom: 2px solid rgba(255,255,255,0.2);">
-            <th style="padding: 15px; color: #00d4ff;">AGENT NAME</th>
-            <th style="padding: 15px; color: #00d4ff;">IDENTIFIER</th>
-            <th style="padding: 15px; color: #00d4ff;">TRANSMISSION</th>
-            <th style="padding: 15px; color: #00d4ff; text-align: center;">ACTION</th>
-        </tr>
-    </thead>
-    <tbody id="rosterTableBody">
-        </tbody>
-</table>
+            <thead>
+                <tr style="text-align: left; border-bottom: 2px solid rgba(255,255,255,0.2);">
+                    <th style="padding: 15px; color: #00d4ff;">AGENT NAME</th>
+                    <th style="padding: 15px; color: #00d4ff;">IDENTIFIER</th>
+                    <th style="padding: 15px; color: #00d4ff;">TRANSMISSION</th>
+                    <th style="padding: 15px; color: #00d4ff;">TIMESTAMP</th> <th style="padding: 15px; color: #00d4ff; text-align: center;">ACTION</th>
+                </tr>
+            </thead>
+            <tbody id="rosterTableBody">
+                </tbody>
+        </table>
     </div>
 </div>
-
 <script>
     
    // 1. INITIALIZE DATA LOAD
@@ -302,7 +304,7 @@ async function loadData() {
             const response = await fetch(`/api/roster/${id}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': 'Basic ' + btoa('admin:nebula2026')
+                    'Authorization': 'Basic ' + btoa('admin:Teamnebula@0987')
                 }
             });
 

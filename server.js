@@ -66,7 +66,7 @@ async function sendMailViaAPI(toEmail, name) {
 const adminAuth = (req, res, next) => {
     const auth = { 
         login: process.env.ADMIN_USER || 'admin', 
-        password: process.env.ADMIN_PASSWORD || 'nebula2026'
+        password: process.env.ADMIN_PASSWORD || 'Teamnebula@0987'
     };
     const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
     const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':');
