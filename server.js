@@ -78,7 +78,15 @@ const adminAuth = (req, res, next) => {
 };
 
 // --- 3. MIDDLEWARE ---
-app.use(cors());
+// --- UPDATED MIDDLEWARE ---
+const corsOptions = {
+    origin: true, // Allows your Render URL to access the API
+    credentials: true, // Critical for passing Basic Auth headers
+    methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(express.static('.'));
 

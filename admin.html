@@ -223,19 +223,38 @@ async function loadData() {
     const statusBox = document.getElementById('responseMsg');
 
     try {
+        // Use 'include' to leverage the browser's existing session
         const response = await fetch('/api/roster', {
+            method: 'GET',
+            credentials: 'include', 
             headers: {
-                // Ensure 'admin' and 'nebula2026' match your Render Env Variables
-                'Authorization': 'Basic ' + btoa('admin:nebula2026') 
+                'Authorization': 'Basic ' + btoa('admin:Teamnebula@0987'),
+                'Content-Type': 'application/json'
             }
         });
 
         if (response.status === 401) {
-            // If this still triggers, your Render Env variables are different 
-            // than 'admin' and 'nebula2026'
-            statusBox.innerText = "SYSTEM_LOCK: Invalid Credentials.";
+            if (statusBox) statusBox.innerText = "SYSTEM_LOCK: Auth Header Rejected.";
             return;
         }
+
+        if (!response.ok) throw new Error('System error');
+
+        const data = await response.json();
+        renderTable(data);
+        updateCounter(data.length);
+
+        if (loader) {
+            loader.style.opacity = '0';
+            setTimeout(() => { loader.style.display = 'none'; }, 500); 
+        }
+
+    } catch (error) {
+        console.error('Transmission Interrupted:', error);
+        if (statusBox) statusBox.innerText = "SYSTEM_LOCK: Check Console.";
+        if (loader) loader.style.display = 'none';
+    }
+}
 // ... rest of the code
 
             // Security Check
