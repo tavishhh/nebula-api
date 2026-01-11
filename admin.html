@@ -214,18 +214,27 @@
 </div>
 
 <script>
-    // 1. INITIALIZE DATA LOAD
-    async function loadData() {
-        const loader = document.getElementById('loader');
-        const statusBox = document.getElementById('responseMsg');
+    
+   // 1. INITIALIZE DATA LOAD
+async function loadData() {
+    const loader = document.getElementById('loader');
+    const statusBox = document.getElementById('responseMsg');
 
-        try {
-            // Sending authorization headers for the protected route
-            const response = await fetch('/api/roster', {
-                headers: {
-                    'Authorization': 'Basic ' + btoa('admin:nebula2026')
-                }
-            });
+    try {
+        const response = await fetch('/api/roster', {
+            headers: {
+                // Ensure 'admin' and 'nebula2026' match your Render Env Variables
+                'Authorization': 'Basic ' + btoa('admin:nebula2026') 
+            }
+        });
+
+        if (response.status === 401) {
+            // If this still triggers, your Render Env variables are different 
+            // than 'admin' and 'nebula2026'
+            statusBox.innerText = "SYSTEM_LOCK: Invalid Credentials.";
+            return;
+        }
+// ... rest of the code
 
             // Security Check
             if (response.status === 401) {
