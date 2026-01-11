@@ -122,16 +122,38 @@ app.post('/api/roster', async (req, res) => {
 });
 
 // --- 6. PROTECTED ADMIN ROUTES ---
+
+// 6.1 Serve the Admin Panel
 app.get('/admin.html', adminAuth, (req, res) => {
     res.sendFile(__dirname + '/admin.html');
 });
 
+// 6.2 Fetch All Roster Entries
 app.get('/api/roster', adminAuth, async (req, res) => {
     try {
         const entries = await Roster.find().sort({ timestamp: -1 });
         res.status(200).json(entries);
     } catch (error) {
-        res.status(500).json({ message: 'Failed to fetch' });
+        console.error('Fetch error:', error);
+        res.status(500).json({ message: 'Failed to fetch data' });
+    }
+});
+
+// 6.3 NEW: Delete Specific Entry
+app.delete('/api/roster/:id', adminAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedEntry = await Roster.findByIdAndDelete(id);
+        
+        if (!deletedEntry) {
+            return res.status(404).json({ message: 'Entry not found' });
+        }
+
+        console.log(`>>> DATA_PURGED: ${deletedEntry.name}`);
+        res.status(200).json({ message: 'Target neutralized from roster.' });
+    } catch (error) {
+        console.error('Delete error:', error);
+        res.status(500).json({ message: 'Failed to delete data' });
     }
 });
 

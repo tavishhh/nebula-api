@@ -106,6 +106,79 @@
             margin: 20px auto;
         }
 
+        /* Purge Button Base Style */
+        .purge-btn {
+            background: rgba(255, 0, 0, 0.05);
+            color: #ff3333;
+            border: 1px solid #ff3333;
+            padding: 6px 15px;
+            border-radius: 2px; /* Sharp corners for a more military feel */
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s ease-in-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+      /* Hover Effect: Glowing Red */
+      .purge-btn:hover {
+            background: #ff3333;
+            color: #000;
+            box-shadow: 0 0 15px rgba(255, 51, 51, 0.6);
+            text-shadow: none;
+            transform: translateY(-1px);
+        }
+
+      /* Active Click Effect */
+      .purge-btn:active {
+        transform: translateY(1px);
+        box-shadow: 0 0 5px rgba(255, 51, 51, 0.8);
+        }
+
+      /* Row Hover - dims other rows slightly to focus on current */
+      tr:hover td {
+        color: #fff;
+        transition: 0.3s;
+        }
+
+    tr td {
+        transition: 0.3s;
+        color: rgba(255,255,255,0.7);
+        }
+      /* Custom Scrollbar for the Glass Card */
+      .glass-card::-webkit-scrollbar {
+        height: 8px;
+        width: 8px;
+        }
+      .glass-card::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        }
+      .glass-card::-webkit-scrollbar-thumb {
+        background: var(--accent-blue);
+        border-radius: 10px;
+        border: 2px solid var(--bg-color);
+        }
+
+      /* Center the Action header */
+     th:last-child {
+        text-align: center;
+        }
+
+    /* Add a slight fade-in animation for the whole container */
+    .container {
+        animation: fadeIn 0.8s ease-out;
+        }
+
+    @keyframes fadeIn {
+       from { opacity: 0; transform: translateY(10px); }
+       to { opacity: 1; transform: translateY(0); }
+       }
+
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -125,88 +198,127 @@
 
     <div class="glass-card">
         <div id="loader" class="loader"></div>
-        <table id="rosterTable" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-            <thead>
-                <tr>
-                    <th>Agent Name</th>
-                    <th>Identifier (Email)</th>
-                    <th>Transmission</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="rosterTableBody"></tbody>
-        </table>
+        <table id="rosterTable" style="display: none; width: 100%; border-collapse: collapse; margin-top: 20px;">
+    <thead>
+        <tr style="text-align: left; border-bottom: 2px solid rgba(255,255,255,0.2);">
+            <th style="padding: 15px; color: #00d4ff;">AGENT NAME</th>
+            <th style="padding: 15px; color: #00d4ff;">IDENTIFIER</th>
+            <th style="padding: 15px; color: #00d4ff;">TRANSMISSION</th>
+            <th style="padding: 15px; color: #00d4ff; text-align: center;">ACTION</th>
+        </tr>
+    </thead>
+    <tbody id="rosterTableBody">
+        </tbody>
+</table>
     </div>
 </div>
 
 <script>
     // 1. INITIALIZE DATA LOAD
-   async function loadData() {
-    const loader = document.getElementById('loader');
-    const statusBox = document.getElementById('responseMsg');
+    async function loadData() {
+        const loader = document.getElementById('loader');
+        const statusBox = document.getElementById('responseMsg');
 
-    try {
-        const response = await fetch('/api/roster');
+        try {
+            // Sending authorization headers for the protected route
+            const response = await fetch('/api/roster', {
+                headers: {
+                    'Authorization': 'Basic ' + btoa('admin:nebula2026')
+                }
+            });
 
-        // 1. Security Check
-        if (response.status === 401) {
-            console.warn("NEBULA_AUTH: Credentials required.");
-            if (statusBox) statusBox.innerText = "SYSTEM_LOCK: Access Denied.";
-            return;
+            // Security Check
+            if (response.status === 401) {
+                console.warn("NEBULA_AUTH: Credentials required.");
+                if (statusBox) statusBox.innerText = "SYSTEM_LOCK: Access Denied.";
+                return;
+            }
+
+            if (!response.ok) throw new Error('System error');
+
+            // Process Data
+            const data = await response.json();
+            
+            // Update UI
+            renderTable(data);
+            updateCounter(data.length);
+
+            // Hide the loader smoothly
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => { 
+                    loader.style.display = 'none'; 
+                }, 500); 
+            }
+
+        } catch (error) {
+            console.error('Transmission Interrupted:', error);
+            if (statusBox) statusBox.innerText = "SYSTEM_LOCK: Connection Failed.";
+            if (loader) loader.style.display = 'none';
         }
-
-        if (!response.ok) throw new Error('System error');
-
-        // 2. Process Data
-        const data = await response.json();
-        
-        // 3. Update UI
-        renderTable(data);
-        updateCounter(data.length);
-
-        // 4. THE FIX: Hide the loader smoothly
-        if (loader) {
-            loader.style.opacity = '0';
-            setTimeout(() => { 
-                loader.style.display = 'none'; 
-            }, 500); 
-        }
-
-    } catch (error) {
-        console.error('Transmission Interrupted:', error);
-        if (statusBox) statusBox.innerText = "SYSTEM_LOCK: Connection Failed.";
-        // Ensure loader disappears even if there is an error
-        if (loader) loader.style.display = 'none';
     }
-}
 
-    // 2. RENDER THE TABLE (The missing function)
-function renderTable(data) {
-    const tableContainer = document.getElementById('rosterTable');
-    const tableBody = document.getElementById('rosterTableBody');
-    
-    if (!tableBody || !tableContainer) return;
+    // 2. RENDER THE TABLE (With Purge Buttons & Row Tracking)
+    function renderTable(data) {
+        const tableContainer = document.getElementById('rosterTable');
+        const tableBody = document.getElementById('rosterTableBody');
+        
+        if (!tableBody || !tableContainer) return;
 
-    // Ensure the table is visible now that we have data
-    tableContainer.style.display = 'table'; 
+        tableContainer.style.display = 'table'; 
+        tableBody.innerHTML = ''; 
 
-    tableBody.innerHTML = ''; 
+        data.forEach(entry => {
+            const row = `
+                <tr id="row-${entry._id}">
+                    <td style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);">${entry.name}</td>
+                    <td style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: monospace;">${entry.email}</td>
+                    <td style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); opacity: 0.8;">${entry.message}</td>
+                    <td style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center;">
+                        <button class="purge-btn" onclick="deleteEntry('${entry._id}')">
+                            PURGE
+                        </button>
+                    </td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+    }
 
-    data.forEach(entry => {
-        const row = `
-            <tr>
-                <td style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);">${entry.name}</td>
-                <td style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);">${entry.email}</td>
-                <td style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);">${entry.message}</td>
-                <td style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);">${new Date(entry.timestamp).toLocaleDateString()}</td>
-            </tr>
-        `;
-        tableBody.innerHTML += row;
-    });
-}
+    // 3. DELETE FUNCTION (Target Neutralization)
+    async function deleteEntry(id) {
+        if (!confirm("⚠️ WARNING: Permanent deletion of data packet requested. Proceed?")) return;
 
+        try {
+            const response = await fetch(`/api/roster/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': 'Basic ' + btoa('admin:nebula2026')
+                }
+            });
 
-    // 3. UPDATE THE AGENT COUNTER
+            if (response.ok) {
+                // Visual feedback: Fade out the row before refreshing
+                const targetRow = document.getElementById(`row-${id}`);
+                if (targetRow) {
+                    targetRow.style.opacity = '0';
+                    targetRow.style.transition = '0.5s';
+                    targetRow.style.transform = 'translateX(20px)';
+                }
+
+                setTimeout(() => {
+                    loadData(); // Re-fetch to update count and clean table
+                }, 500);
+            } else {
+                alert("NEBULA_ERROR: Authorization or connection failure.");
+            }
+        } catch (error) {
+            console.error('Purge failed:', error);
+            alert("SYSTEM_CRITICAL: Delete command failed.");
+        }
+    }
+
+    // 4. UPDATE THE AGENT COUNTER
     function updateCounter(count) {
         const counterElement = document.getElementById('agentCount');
         if (counterElement) {
@@ -214,7 +326,7 @@ function renderTable(data) {
         }
     }
 
-    // Run the system on page load
+    // Run system check on launch
     window.onload = loadData;
 </script>
 </body>
