@@ -8,18 +8,12 @@ const nodemailer = require('nodemailer');
 // --- 1. EMAIL TRANSPORTER SETUP ---
 const transporter = nodemailer.createTransport({
     service: 'gmail',
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // Must be false for 587
-    requireTLS: true,
     auth: {
+        type: 'OAuth2',
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    tls: {
-        // This is the "magic" line that fixes most Render timeouts
-        ciphers: 'SSLv3',
-        rejectUnauthorized: false
+        clientId: process.env.CLIENT_ID,
+        clientSecret: process.env.CLIENT_SECRET,
+        refreshToken: process.env.REFRESH_TOKEN
     }
 });
 
