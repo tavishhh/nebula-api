@@ -3,16 +3,25 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
+const nodemailer = require('nodemailer');
+
+// --- 1. EMAIL TRANSPORTER SETUP ---
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER, 
+        pass: process.env.EMAIL_PASS  
+    }
+});
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// --- 1. SECURITY MIDDLEWARE ---
+// --- 2. SECURITY MIDDLEWARE ---
 const adminAuth = (req, res, next) => {
-    // We use environment variables for the login credentials
     const auth = { 
         login: process.env.ADMIN_USER || 'admin', 
-        password: process.env.ADMIN_PASSWORD || 'nebula2026' // Fallback for local testing
+        password: process.env.ADMIN_PASSWORD || 'nebula2026'
     };
 
     const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
@@ -26,12 +35,12 @@ const adminAuth = (req, res, next) => {
     res.status(401).send('NEBULA_AUTH: Authentication required to access Orbit Control.');
 };
 
-// --- 2. MIDDLEWARE ---
+// --- 3. MIDDLEWARE ---
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('.'));
 
-// --- 3. MONGODB CONNECTION ---
+// --- 4. MONGODB CONNECTION ---
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('>>> NEBULA_SYSTEM: Connected to MongoDB [Database: nebula]'))
   .catch(err => {
@@ -46,14 +55,13 @@ const rosterSchema = new mongoose.Schema({
 });
 const Roster = mongoose.model('Roster', rosterSchema, 'roster');
 
-// --- 4. PUBLIC ROUTES ---
+// --- 5. PUBLIC ROUTES ---
 
-// Main Landing Page (Index)
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
-// Deployment Endpoint (For creators to join the orbit)
+// Deployment Endpoint - Now with Automated Email
 app.post('/api/roster', async (req, res) => {
   const { name, email, message } = req.body;
 
@@ -62,9 +70,37 @@ app.post('/api/roster', async (req, res) => {
   }
 
   try {
+    // Save to Database
     const newEntry = new Roster({ name, email, message });
     await newEntry.save();
     console.log('>>> DATA_CACHED:', newEntry.name);
+
+    // Prepare Email Content
+    const mailOptions = {
+        from: `"Nebula Systems" <${process.env.EMAIL_USER}>`,
+        to: email, 
+        subject: 'NEBULA: Transmission Synchronized',
+        html: `
+            <div style="background: #0a0a0c; color: #ffffff; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; border: 2px solid #4f46e5; border-radius: 12px; max-width: 500px;">
+                <h2 style="color: #4f46e5; margin-top: 0;">SYSTEM_UPDATE: Incoming Transmission</h2>
+                <p>Hello Agent <b>${name}</b>,</p>
+                <p>Your data packet has been successfully decrypted and uploaded to the <b>Nebula Roster</b> database.</p>
+                <div style="background: #16161a; padding: 15px; border-radius: 8px; border-left: 4px solid #4f46e5;">
+                    <p style="margin: 0; font-size: 0.9em; color: #888;"><b>Status:</b> <span style="color: #4CAF50;">CONFIRMED</span></p>
+                    <p style="margin: 5px 0 0 0; font-size: 0.9em; color: #888;"><b>Identifier:</b> ${email}</p>
+                </div>
+                <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
+                <p style="font-size: 0.75em; color: #666; text-align: center;">This is an automated response from Nebula Core. Do not reply.</p>
+            </div>
+        `
+    };
+
+    // Send Email (Don't use 'await' here so the user doesn't have to wait for the email server)
+    transporter.sendMail(mailOptions, (err, info) => {
+        if (err) console.error("!!! MAIL_ERROR:", err);
+        else console.log(">>> MAIL_SENT:", info.response);
+    });
+
     res.status(200).json({ message: 'Successfully joined the nebula!' });
   } catch (error) {
     console.error('DB save error:', error);
@@ -72,14 +108,12 @@ app.post('/api/roster', async (req, res) => {
   }
 });
 
-// --- 5. PROTECTED ADMIN ROUTES ---
+// --- 6. PROTECTED ADMIN ROUTES ---
 
-// Admin Panel File Access (Protected)
 app.get('/admin.html', adminAuth, (req, res) => {
     res.sendFile(__dirname + '/admin.html');
 });
 
-// Admin Data API (Protected)
 app.get('/api/roster', adminAuth, async (req, res) => {
     try {
         const entries = await Roster.find().sort({ timestamp: -1 });
@@ -90,7 +124,7 @@ app.get('/api/roster', adminAuth, async (req, res) => {
     }
 });
 
-// --- 6. SYSTEM INITIALIZATION ---
+// --- 7. SYSTEM INITIALIZATION ---
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`>>> NEBULA_CORE: Active on port ${PORT}`);
 });
