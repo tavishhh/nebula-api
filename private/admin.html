@@ -5,123 +5,169 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEBULA | Business OS</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-color: #05050a;
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --accent-purple: #9d50bb;
-            --accent-blue: #6e7ff3;
-            --nebula-glow: 0 0 20px rgba(110, 127, 243, 0.3);
-        }
+<style>
+    :root {
+        --bg-color: #05050a;
+        --glass-bg: rgba(255, 255, 255, 0.03);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --accent-purple: #9d50bb;
+        --accent-blue: #6e7ff3;
+        --nebula-glow: 0 0 20px rgba(110, 127, 243, 0.3);
+    }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-color);
-            background-image: 
-                radial-gradient(circle at 20% 30%, rgba(157, 80, 187, 0.1) 0%, transparent 40%),
-                radial-gradient(circle at 80% 70%, rgba(110, 127, 243, 0.1) 0%, transparent 40%);
-            color: white;
-            margin: 0;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-color);
+        background-image: 
+            radial-gradient(circle at 20% 30%, rgba(157, 80, 187, 0.1) 0%, transparent 40%),
+            radial-gradient(circle at 80% 70%, rgba(110, 127, 243, 0.1) 0%, transparent 40%);
+        color: white;
+        margin: 0;
+        min-height: 100vh;
+        overflow-x: hidden; /* Prevents side-scrolling on the whole page */
+    }
 
-        /* --- NEW NAVIGATION --- */
+    /* --- NAVIGATION --- */
+    .nebula-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 40px;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--glass-border);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        transition: all 0.3s ease;
+    }
+
+    .logo {
+        font-weight: 600;
+        letter-spacing: 4px;
+        color: #fff;
+        text-shadow: var(--nebula-glow);
+        white-space: nowrap;
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 30px;
+    }
+
+    .nav-links a {
+        color: rgba(255,255,255,0.6);
+        text-decoration: none;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: 0.3s;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .nav-links a.active, .nav-links a:hover {
+        color: var(--accent-blue);
+        text-shadow: var(--nebula-glow);
+    }
+
+    /* --- CONTAINER --- */
+    .container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .view-section {
+        display: none;
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    .view-section.active {
+        display: block;
+    }
+
+    /* --- GLASS CARDS --- */
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        margin-bottom: 30px;
+        overflow-x: auto; /* CRITICAL: Allows table to scroll inside the card on mobile */
+    }
+
+    /* --- TABLES --- */
+    table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        min-width: 600px; /* Prevents text from squishing too much */
+    }
+    
+    th { text-align: left; padding: 15px; color: var(--accent-blue); font-size: 0.75rem; letter-spacing: 1px; border-bottom: 1px solid var(--glass-border); }
+    td { padding: 15px; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+    .template-box {
+        background: rgba(255,255,255,0.05);
+        padding: 15px;
+        border-radius: 10px;
+        font-family: monospace;
+        font-size: 0.85rem;
+        margin-top: 10px;
+        white-space: pre-wrap;
+        border-left: 3px solid var(--accent-purple);
+        word-break: break-word;
+    }
+
+    .copy-btn {
+        background: var(--accent-blue);
+        border: none;
+        color: white;
+        padding: 10px 20px; /* Slightly larger for touch */
+        border-radius: 5px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    /* --- MOBILE RESPONSIVENESS (Media Queries) --- */
+    @media (max-width: 768px) {
         .nebula-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 40px;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--glass-border);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .logo {
-            font-weight: 600;
-            letter-spacing: 4px;
-            color: #fff;
-            text-shadow: var(--nebula-glow);
+            flex-direction: column; /* Stacks logo and nav links */
+            padding: 15px 20px;
+            gap: 15px;
         }
 
         .nav-links {
-            display: flex;
-            gap: 30px;
+            gap: 15px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap; /* Wraps links to new line if screen is tiny */
         }
 
         .nav-links a {
-            color: rgba(255,255,255,0.6);
-            text-decoration: none;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: 0.3s;
-            cursor: pointer;
-        }
-
-        .nav-links a.active, .nav-links a:hover {
-            color: var(--accent-blue);
-            text-shadow: var(--nebula-glow);
+            font-size: 0.7rem;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
-        .view-section {
-            display: none; /* Hidden by default */
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        .view-section.active {
-            display: block;
+            margin: 20px auto;
+            padding: 0 15px;
         }
 
         .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 15px;
         }
 
-        /* --- TABLES & CONTENT --- */
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 15px; color: var(--accent-blue); font-size: 0.75rem; letter-spacing: 1px; border-bottom: 1px solid var(--glass-border); }
-        td { padding: 15px; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
-
-        .template-box {
-            background: rgba(255,255,255,0.05);
-            padding: 15px;
-            border-radius: 10px;
-            font-family: monospace;
-            font-size: 0.85rem;
-            margin-top: 10px;
-            white-space: pre-wrap;
-            border-left: 3px solid var(--accent-purple);
+        h1, h2, h3 {
+            font-size: 1.2rem;
         }
+    }
 
-        .copy-btn {
-            background: var(--accent-blue);
-            border: none;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 5px;
-            font-size: 0.7rem;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
 </head>
 <body>
 
