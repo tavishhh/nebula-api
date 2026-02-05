@@ -61,14 +61,13 @@ const adminAuth = (req, res, next) => {
 // --- 3. CORE MIDDLEWARE ---
 app.use(cors({ origin: true, credentials: true, methods: ['GET', 'POST', 'DELETE', 'OPTIONS'], allowedHeaders: ['Content-Type', 'Authorization'] }));
 app.use(bodyParser.json());
-app.use(express.static('.')); // Serves index.html, css, etc.
+app.use(express.static('.')); 
 
-// --- 4. DATABASE & SCALING SCHEMAS (The Architect) ---
+// --- 4. DATABASE & SCALING SCHEMAS ---
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('>>> NEBULA_SYSTEM: Connected to MongoDB'))
   .catch(err => console.error('!!! NEBULA_ERROR:', err));
 
-// Roster: For inbound leads (Agents/Creators)
 const rosterSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true },
@@ -77,24 +76,28 @@ const rosterSchema = new mongoose.Schema({
 });
 const Roster = mongoose.model('Roster', rosterSchema, 'roster');
 
-// NebulaOS: For Scaling Data (Templates, Proposals, Managed Creators)
 const managementSchema = new mongoose.Schema({
-    category: { type: String, required: true }, // 'proposal', 'creator', 'vault'
+    category: { type: String, required: true }, 
     title: String,
     content: mongoose.Schema.Types.Mixed,
     dateAdded: { type: Date, default: Date.now }
 });
 const NebulaOS = mongoose.model('NebulaOS', managementSchema);
 
-// --- 5. PAGE ROUTES ---
+// --- 5. PAGE ROUTES (Updated for /private logic) ---
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// Pointing to the specific /private/ folder as requested
+// Dashboard Route
 app.get('/admin.html', adminAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'private', 'admin.html'));
 });
 
-// --- 6. PUBLIC API (Lead Generation) ---
+// Creator Roster Route
+app.get('/creators.html', adminAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, 'private', 'creators.html'));
+});
+
+// --- 6. PUBLIC API (Lead Generation & Manual Entry) ---
 app.post('/api/roster', async (req, res) => {
     const { name, email, message } = req.body;
     if (!name || !email || !message) return res.status(400).json({ message: 'All fields required.' });
@@ -102,14 +105,20 @@ app.post('/api/roster', async (req, res) => {
         const newEntry = new Roster({ name, email, message });
         await newEntry.save();
         console.log('>>> DATA_CACHED:', newEntry.name);
-        sendMailViaAPI(email, name);
+        
+        // Note: This sends email to the "email" field. 
+        // For creators.html, this field contains their IG URL, so Gmail API might throw an error if not a valid email format.
+        if (email.includes('@')) {
+            sendMailViaAPI(email, name);
+        }
+        
         res.status(200).json({ message: 'Successfully joined the nebula!' });
     } catch (error) { res.status(500).json({ message: 'Internal error.' }); }
 });
 
-// --- 7. PROTECTED API (The Scaling Business Logic) ---
+// --- 7. PROTECTED API ---
 
-// 7.1 Fetch Scaling Data (Proposals / Creators / Vault)
+// 7.1 Fetch Scaling Data
 app.get('/api/manage/:category', adminAuth, async (req, res) => {
     try {
         const data = await NebulaOS.find({ category: req.params.category });
@@ -117,7 +126,7 @@ app.get('/api/manage/:category', adminAuth, async (req, res) => {
     } catch (err) { res.status(500).json({ message: "Fetch Error" }); }
 });
 
-// 7.2 Save New Scaling Asset (Templates or Hidden Gems)
+// 7.2 Save New Scaling Asset
 app.post('/api/manage', adminAuth, async (req, res) => {
     try {
         const newItem = new NebulaOS(req.body);
@@ -126,7 +135,7 @@ app.post('/api/manage', adminAuth, async (req, res) => {
     } catch (err) { res.status(500).json({ message: "Storage Error" }); }
 });
 
-// 7.3 Roster Log Operations
+// 7.3 Roster Log Operations (GET & DELETE)
 app.get('/api/roster', adminAuth, async (req, res) => {
     try {
         const entries = await Roster.find().sort({ timestamp: -1 });
@@ -134,11 +143,16 @@ app.get('/api/roster', adminAuth, async (req, res) => {
     } catch (err) { res.status(500).json({ message: 'Fetch error' }); }
 });
 
+// FIXED PURGE ROUTE
 app.delete('/api/roster/:id', adminAuth, async (req, res) => {
     try {
-        await Roster.findByIdAndDelete(req.params.id);
+        const result = await Roster.findByIdAndDelete(req.params.id);
+        if (!result) return res.status(404).json({ message: 'Target not found.' });
         res.status(200).json({ message: 'Target neutralized.' });
-    } catch (err) { res.status(500).json({ message: 'Purge failed' }); }
+    } catch (err) { 
+        console.error("PURGE_ERROR:", err);
+        res.status(500).json({ message: 'Purge failed' }); 
+    }
 });
 
 // --- 8. SYSTEM INITIALIZATION ---

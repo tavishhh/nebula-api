@@ -21,151 +21,54 @@
         background-image: 
             radial-gradient(circle at 20% 30%, rgba(157, 80, 187, 0.1) 0%, transparent 40%),
             radial-gradient(circle at 80% 70%, rgba(110, 127, 243, 0.1) 0%, transparent 40%);
-        color: white;
-        margin: 0;
-        min-height: 100vh;
-        overflow-x: hidden; /* Prevents side-scrolling on the whole page */
+        color: white; margin: 0; min-height: 100vh; overflow-x: hidden;
     }
 
-    /* --- NAVIGATION --- */
     .nebula-nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px 40px;
-        background: rgba(0, 0, 0, 0.8);
-        backdrop-filter: blur(10px);
-        border-bottom: 1px solid var(--glass-border);
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-        transition: all 0.3s ease;
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 20px 40px; background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px); border-bottom: 1px solid var(--glass-border);
+        position: sticky; top: 0; z-index: 1000;
     }
 
-    .logo {
-        font-weight: 600;
-        letter-spacing: 4px;
-        color: #fff;
-        text-shadow: var(--nebula-glow);
-        white-space: nowrap;
+    .logo { font-weight: 600; letter-spacing: 4px; color: #fff; text-shadow: var(--nebula-glow); }
+    .nav-links { display: flex; gap: 30px; }
+    .nav-links a { 
+        color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.8rem; 
+        text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; cursor: pointer; 
     }
+    .nav-links a.active, .nav-links a:hover { color: var(--accent-blue); text-shadow: var(--nebula-glow); }
 
-    .nav-links {
-        display: flex;
-        gap: 30px;
-    }
+    .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+    .view-section { display: none; animation: fadeIn 0.5s ease-out; }
+    .view-section.active { display: block; }
 
-    .nav-links a {
-        color: rgba(255,255,255,0.6);
-        text-decoration: none;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        transition: 0.3s;
-        cursor: pointer;
-        white-space: nowrap;
-    }
-
-    .nav-links a.active, .nav-links a:hover {
-        color: var(--accent-blue);
-        text-shadow: var(--nebula-glow);
-    }
-
-    /* --- CONTAINER --- */
-    .container {
-        max-width: 1200px;
-        margin: 40px auto;
-        padding: 0 20px;
-    }
-
-    .view-section {
-        display: none;
-        animation: fadeIn 0.5s ease-out;
-    }
-
-    .view-section.active {
-        display: block;
-    }
-
-    /* --- GLASS CARDS --- */
     .glass-card {
-        background: var(--glass-bg);
-        backdrop-filter: blur(12px);
-        border: 1px solid var(--glass-border);
-        border-radius: 20px;
-        padding: 30px;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-        margin-bottom: 30px;
-        overflow-x: auto; /* CRITICAL: Allows table to scroll inside the card on mobile */
+        background: var(--glass-bg); backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border); border-radius: 20px;
+        padding: 30px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5); margin-bottom: 30px;
+        overflow-x: auto;
     }
 
-    /* --- TABLES --- */
-    table { 
-        width: 100%; 
-        border-collapse: collapse; 
-        min-width: 600px; /* Prevents text from squishing too much */
-    }
-    
-    th { text-align: left; padding: 15px; color: var(--accent-blue); font-size: 0.75rem; letter-spacing: 1px; border-bottom: 1px solid var(--glass-border); }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    th { text-align: left; padding: 15px; color: var(--accent-blue); font-size: 0.75rem; border-bottom: 1px solid var(--glass-border); }
     td { padding: 15px; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
     .template-box {
-        background: rgba(255,255,255,0.05);
-        padding: 15px;
-        border-radius: 10px;
-        font-family: monospace;
-        font-size: 0.85rem;
-        margin-top: 10px;
-        white-space: pre-wrap;
-        border-left: 3px solid var(--accent-purple);
-        word-break: break-word;
+        background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px;
+        font-family: monospace; font-size: 0.85rem; margin-top: 10px;
+        white-space: pre-wrap; border-left: 3px solid var(--accent-purple); word-break: break-word;
     }
 
     .copy-btn {
-        background: var(--accent-blue);
-        border: none;
-        color: white;
-        padding: 10px 20px; /* Slightly larger for touch */
-        border-radius: 5px;
-        font-size: 0.75rem;
-        cursor: pointer;
-        margin-top: 10px;
+        background: var(--accent-blue); border: none; color: white;
+        padding: 10px 20px; border-radius: 5px; font-size: 0.75rem; cursor: pointer; margin-top: 10px;
     }
 
-    /* --- MOBILE RESPONSIVENESS (Media Queries) --- */
     @media (max-width: 768px) {
-        .nebula-nav {
-            flex-direction: column; /* Stacks logo and nav links */
-            padding: 15px 20px;
-            gap: 15px;
-        }
-
-        .nav-links {
-            gap: 15px;
-            width: 100%;
-            justify-content: center;
-            flex-wrap: wrap; /* Wraps links to new line if screen is tiny */
-        }
-
-        .nav-links a {
-            font-size: 0.7rem;
-        }
-
-        .container {
-            margin: 20px auto;
-            padding: 0 15px;
-        }
-
-        .glass-card {
-            padding: 20px;
-            border-radius: 15px;
-        }
-
-        h1, h2, h3 {
-            font-size: 1.2rem;
-        }
+        .nebula-nav { flex-direction: column; padding: 15px 20px; gap: 15px; }
+        .nav-links { gap: 15px; width: 100%; justify-content: center; flex-wrap: wrap; }
     }
-
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
@@ -176,7 +79,7 @@
     <nav class="nav-links">
         <a onclick="showView('dashboard')" id="nav-dashboard" class="active">Dashboard</a>
         <a onclick="showView('proposals')" id="nav-proposals">Proposals</a>
-        <a onclick="showView('roster')" id="nav-roster">Creator Roster</a>
+        <a href="creators.html" id="nav-roster">Creator Roster</a>
         <a onclick="showView('vault')" id="nav-vault">Scaling Vault</a>
     </nav>
 </header>
@@ -226,31 +129,6 @@ Would you be open to seeing a 3-month growth map?
         </div>
     </section>
 
-    <section id="view-roster" class="view-section">
-        <div class="glass-card">
-            <h2>The "A&R" Talent Scouting</h2>
-            <p style="opacity: 0.6">Track your "Hidden Gem" creators here.</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>CREATOR</th>
-                        <th>NICHE</th>
-                        <th>ENGAGEMENT</th>
-                        <th>STATUS</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Hidden Gem #1</td>
-                        <td>Tech/SaaS</td>
-                        <td>8.4% (High)</td>
-                        <td><span style="color: #00ff88">Vetted</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
-
     <section id="view-vault" class="view-section">
         <div class="glass-card">
             <h2>Scaling Vault (The Architect)</h2>
@@ -264,7 +142,8 @@ Would you be open to seeing a 3-month growth map?
 </div>
 
 <script>
-    // VIEW SWITCHER LOGIC
+    const authHeader = 'Basic ' + btoa('admin:Teamnebula@0987');
+
     function showView(viewId) {
         document.querySelectorAll('.view-section').forEach(section => section.classList.remove('active'));
         document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active'));
@@ -273,19 +152,17 @@ Would you be open to seeing a 3-month growth map?
         document.getElementById('nav-' + viewId).classList.add('active');
     }
 
-    // UTILITY: COPY TEXT
     function copyText(id) {
         const text = document.getElementById(id).innerText;
         navigator.clipboard.writeText(text);
         alert("Template copied to clipboard!");
     }
 
-    // YOUR EXISTING DATA LOGIC (Modified to work with new UI)
     async function loadData() {
         try {
             const response = await fetch('/api/roster', {
                 method: 'GET',
-                headers: { 'Authorization': 'Basic ' + btoa('admin:Teamnebula@0987') }
+                headers: { 'Authorization': authHeader }
             });
             const data = await response.json();
             renderTable(data);
@@ -304,9 +181,31 @@ Would you be open to seeing a 3-month growth map?
                     <td>${entry.name}</td>
                     <td>${entry.email}</td>
                     <td style="opacity:0.7">${entry.message}</td>
-                    <td style="text-align:center"><button style="color:red; background:none; border:1px solid red; cursor:pointer;" onclick="deleteEntry('${entry._id}')">PURGE</button></td>
+                    <td style="text-align:center">
+                        <button style="color:red; background:none; border:1px solid red; border-radius:4px; padding:5px 10px; cursor:pointer;" 
+                        onclick="deleteEntry('${entry._id}')">PURGE</button>
+                    </td>
                 </tr>`;
         });
+    }
+
+    // NEW: DEFINED DELETE FUNCTION
+    async function deleteEntry(id) {
+        if(confirm('Purge this data from Nebula Core?')) {
+            try {
+                const response = await fetch(`/api/roster/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': authHeader }
+                });
+                if (response.ok) {
+                    loadData();
+                } else {
+                    alert("Access Denied or System Error.");
+                }
+            } catch (err) {
+                console.error("Delete failed:", err);
+            }
+        }
     }
 
     window.onload = loadData;

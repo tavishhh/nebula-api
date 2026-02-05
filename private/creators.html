@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEBULA | Creator Roster</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --bg-color: #05050a;
+        --glass-bg: rgba(255, 255, 255, 0.03);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --accent-purple: #9d50bb;
+        --accent-blue: #6e7ff3;
+        --nebula-glow: 0 0 20px rgba(110, 127, 243, 0.3);
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-color);
+        background-image: 
+            radial-gradient(circle at 20% 30%, rgba(157, 80, 187, 0.1) 0%, transparent 40%),
+            radial-gradient(circle at 80% 70%, rgba(110, 127, 243, 0.1) 0%, transparent 40%);
+        color: white; margin: 0; min-height: 100vh;
+    }
+
+    /* --- NAV: RESPONSIVE --- */
+    .nebula-nav {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 15px 5%; background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px); border-bottom: 1px solid var(--glass-border);
+        position: sticky; top: 0; z-index: 1000;
+    }
+    .logo { font-weight: 600; letter-spacing: 2px; text-shadow: var(--nebula-glow); font-size: 0.9rem; }
+    .nav-links a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.7rem; text-transform: uppercase; margin-left: 15px; }
+
+    /* --- CONTAINER --- */
+    .container { width: 92%; max-width: 1200px; margin: 20px auto; }
+    
+    .glass-card {
+        background: var(--glass-bg); backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border); border-radius: 15px;
+        padding: 20px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        margin-bottom: 20px; width: 100%; box-sizing: border-box;
+        overflow: hidden; /* Keeps everything inside the card */
+    }
+
+    /* --- FORM: MOBILE STACK --- */
+    .input-row { 
+        display: flex; flex-direction: column; gap: 12px; 
+    }
+    @media (min-width: 768px) {
+        .input-row { flex-direction: row; }
+        .input-row input, .input-row select { flex: 1; }
+    }
+
+    input, select { 
+        background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); 
+        padding: 12px; border-radius: 8px; color: white; outline: none; width: 100%; box-sizing: border-box;
+    }
+
+    .nebula-btn { 
+        background: var(--accent-blue); border: none; color: white; padding: 12px 20px; 
+        border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; transition: 0.3s;
+    }
+    @media (min-width: 768px) { .nebula-btn { width: auto; } }
+
+    /* --- NICHE TABS: SCROLLABLE ON MOBILE --- */
+    .niche-tabs { 
+        display: flex; gap: 10px; margin-bottom: 20px; 
+        overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch;
+    }
+    .tab { 
+        padding: 8px 15px; border-radius: 8px; background: rgba(255,255,255,0.05); 
+        white-space: nowrap; cursor: pointer; font-size: 0.75rem; border: 1px solid transparent;
+    }
+    .tab.active { border-color: var(--accent-blue); color: var(--accent-blue); }
+
+    /* --- TABLE: SWIPE TO VIEW --- */
+    .table-container { width: 100%; overflow-x: auto; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; min-width: 500px; }
+    th { text-align: left; padding: 12px; color: var(--accent-blue); font-size: 0.7rem; border-bottom: 1px solid var(--glass-border); }
+    td { padding: 12px; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+    .template-box {
+        background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px;
+        font-family: monospace; font-size: 0.8rem; border-left: 3px solid var(--accent-purple);
+        white-space: pre-wrap; margin-bottom: 15px; word-break: break-word;
+    }
+</style>
+</head>
+<body>
+
+<header class="nebula-nav">
+    <div class="logo">NEBULA_OS</div>
+    <nav class="nav-links">
+        <a href="admin.html">Dashboard</a>
+        <a href="#" style="color: var(--accent-blue);">Roster</a>
+    </nav>
+</header>
+
+<div class="container">
+    <div class="glass-card">
+        <h3 style="margin-top:0; font-size: 1rem;">Deploy New Talent</h3>
+        <div class="input-row">
+            <input type="text" id="cName" placeholder="Name">
+            <input type="text" id="cUrl" placeholder="Instagram URL">
+            <select id="cNiche">
+                <option value="Fintech">Fintech India</option>
+                <option value="Regional">Regional Focus</option>
+                <option value="Lifestyle">Lifestyle</option>
+            </select>
+            <button class="nebula-btn" onclick="addCreator()">ADD</button>
+        </div>
+    </div>
+
+    <div class="glass-card">
+        <div class="niche-tabs">
+            <div class="tab active" onclick="switchNiche('Fintech', this)">FINTECH</div>
+            <div class="tab" onclick="switchNiche('Regional', this)">REGIONAL</div>
+            <div class="tab" onclick="switchNiche('Lifestyle', this)">LIFESTYLE</div>
+        </div>
+        <div class="template-box" id="activeScript">Select niche...</div>
+        <button class="nebula-btn" style="font-size: 0.7rem; width: auto;" onclick="copyScript()">COPY SCRIPT</button>
+    </div>
+
+    <div class="glass-card">
+        <h3 style="margin-top:0; font-size: 1rem;">Active Pipeline</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>NAME</th>
+                        <th>NICHE</th>
+                        <th>ACTION</th>
+                    </tr>
+                </thead>
+                <tbody id="creatorTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const authHeader = 'Basic ' + btoa('admin:Teamnebula@0987');
+    const scripts = {
+        'Fintech': "Hey [Name], your finance content is solid. We help creators turn $200 effort into $1000 ROI at nebula.srvcs. Chat?",
+        'Regional': "Namaste [Name], your regional reach is great. Let's upgrade your production to Mumbai standards with Nebula.",
+        'Lifestyle': "Hey [Name], your aesthetic is perfect. Let nebula.srvcs manage the 'orbit' so you can be the star."
+    };
+
+    function switchNiche(niche, el) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('activeScript').innerText = scripts[niche];
+    }
+
+    async function addCreator() {
+        const payload = {
+            name: document.getElementById('cName').value,
+            message: document.getElementById('cNiche').value,
+            email: document.getElementById('cUrl').value
+        };
+        if(!payload.name || !payload.email) return alert("Missing Info");
+
+        await fetch('/api/roster', {
+            method: 'POST',
+            headers: { 'Authorization': authHeader, 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        location.reload();
+    }
+
+    async function loadCreators() {
+        const response = await fetch('/api/roster', { headers: { 'Authorization': authHeader } });
+        const data = await response.json();
+        const body = document.getElementById('creatorTableBody');
+        body.innerHTML = data.map(entry => `
+            <tr>
+                <td>${entry.name}</td>
+                <td style="color:var(--accent-purple)">${entry.message}</td>
+                <td><a href="${entry.email}" target="_blank" style="color:var(--accent-blue); text-decoration:none;">VIEW</a></td>
+            </tr>
+        `).join('');
+    }
+
+    function copyScript() {
+        navigator.clipboard.writeText(document.getElementById('activeScript').innerText);
+        alert("Script Copied.");
+    }
+
+    window.onload = () => { loadCreators(); switchNiche('Fintech', document.querySelector('.tab')); };
+</script>
+</body>
+</html>
